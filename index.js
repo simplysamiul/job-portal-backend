@@ -36,7 +36,14 @@ async function run() {
 
     // get all jobs circular data
     app.get("/jobs", async(req,res) => {
-        const jobsData = jobsCollection.find();
+
+      const email = req.query.email;
+      const query = {};
+      if(email){
+        query.hr_email = email;
+      }
+
+        const jobsData = jobsCollection.find(query);
         const result = await jobsData.toArray();
         res.send(result);
     })
@@ -63,6 +70,23 @@ async function run() {
         application.company_logo = job.company_logo
       }
       res.json(result)
+    })
+
+    app.get("/applications/jobs/:job_id", async(req,res) =>{
+      const job_id = req.params.job_id;
+      const query = {jobId : job_id};
+      const result = await jobsApplicationCollection.find(query).toArray();
+      res.send(result);
+
+    })
+
+
+    // add job
+    app.post("/jobs", async(req,res) => {
+      const job = req.body;
+      const result = await jobsCollection.insertOne(job);
+      res.send(result);
+
     })
 
     // job appliation upload
